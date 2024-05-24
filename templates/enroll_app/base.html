@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CRUD</title>
+    <link rel="stylesheet" href="{% static 'enroll_app/css/bootstrap.css' %}">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center alert alert-danger">CRUD Project</h2>
+        {% block content %}
+        {% endblock content %}
+    </div>
+    <script src="{% static 'enroll_app/js/jquery.js' %}"></script>
+    <script src="{% static 'enroll_app/js/popper.js' %}"></script>
+    <script src="{% static 'enroll_app/js/bootstrap.js' %}"></script>
+</body>
+</html>

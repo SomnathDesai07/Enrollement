@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:latest
+    container_name: 'mysql_cont'
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: enrollment
+      MYSQL_PASSWORD: root
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+
+  django_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: 'django_cont'
+    environment:
+      - SECRET_KEY=q(okr=637#+u56s(!vn*q97#3k=+ef7_6^iu4)dfbi^$$nzi$5
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["sh", "-c", "python manage.py collectstatic --noinput && python manage.py makemigrations && python manage.py migrate && gunicorn crud_project.wsgi:application --bind 0.0.0.0:8000"]
+    volumes:
+      - ./static:/app/static/enroll_app  # Map the static files directory to the Django container
+      - ./mediafiles:/app/static/enroll_app  # Map the media files directory to the Django container
+
+  nginx:
+    build:
+      context: ./nginx
+    container_name: 'nginx_cont'
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf  # Mount the default.conf file into the Nginx container
+      - ./staticfiles:/staticfiles  # Mount the directory where static files are collected by Django
+      - ./mediafiles:/mediafiles  # Mount the directory where media files are stored by Django
+    depends_on:
+      - django_app
